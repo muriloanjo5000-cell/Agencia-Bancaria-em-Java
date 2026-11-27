@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Gestão</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: #ffffff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    nav button {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s ease;
+    }
+
+    nav button:hover,
+    nav button.active {
+      background: #ffffff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .screen {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .screen-header h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .screen-header p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Menu */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .menu-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .menu-card h3 {
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+
+    .menu-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    /* Formulários */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid rgba(30, 58, 138, 0.25);
+      border-color: var(--primary);
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    /* Listagem */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      max-width: 260px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background-color: #e0e7ff;
+      color: var(--primary);
+    }
+
+    .about-list {
+      padding-left: 1.25rem;
+      margin-top: 0.75rem;
+    }
+
+    .about-list li {
+      margin-bottom: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Meu Sistema</h1>
+    <nav aria-label="Navegação principal">
+      <button type="button" data-target="menu" class="active">Menu</button>
+      <button type="button" data-target="cadastro">Cadastro</button>
+      <button type="button" data-target="movimentacoes">Movimentações</button>
+      <button type="button" data-target="listagem">Listagem</button>
+      <button type="button" data-target="sobre">Sobre</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 1. TELA DE MENU -->
+    <section id="menu" class="screen active" aria-labelledby="title-menu">
+      <div class="screen-header">
+        <h2 id="title-menu">Menu Principal</h2>
+        <p>Selecione um módulo para navegar pelas funcionalidades do sistema.</p>
+      </div>
+
+      <div class="menu-grid">
+        <article class="menu-card">
+          <div>
+            <h3>Cadastro</h3>
+            <p>Registre novos itens, usuários ou entidades no sistema.</p>
+          </div>
+          <button type="button" class="btn" data-target="cadastro">Acessar</button>
+        </article>
+
+        <article class="menu-card">
+          <div>
+            <h3>Movimentações</h3>
+            <p>Lance entradas, saídas ou transferências vinculadas a registros.</p>
+          </div>
+          <button type="button" class="btn" data-target="movimentacoes">Acessar</button>
+        </article>
+
+        <article class="menu-card">
+          <div>
+            <h3>Listagem</h3>
+            <p>Consulte, filtre e acompanhe os registros cadastrados.</p>
+          </div>
+          <button type="button" class="btn" data-target="listagem">Acessar</button>
+        </article>
+
+        <article class="menu-card">
+          <div>
+            <h3>Sobre</h3>
+            <p>Informações gerais, arquitetura e objetivo da aplicação.</p>
+          </div>
+          <button type="button" class="btn btn-secondary" data-target="sobre">Ver detalhes</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- 2. TELA DE CADASTRO -->
+    <section id="cadastro" class="screen" aria-labelledby="title-cadastro">
+      <div class="screen-header">
+        <h2 id="title-cadastro">Cadastro</h2>
+        <p>Preencha os campos abaixo para criar um novo registro.</p>
+      </div>
+
+      <form id="form-cadastro">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="cad-nome">Nome / Título *</label>
+            <input type="text" id="cad-nome" name="nome" placeholder="Ex.: Registro 01" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cad-codigo">Código / Identificador *</label>
+            <input type="text" id="cad-codigo" name="codigo" placeholder="Ex.: COD-001" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cad-categoria">Categoria</label>
+            <select id="cad-categoria" name="categoria">
+              <option value="Padrão">Padrão</option>
+              <option value="Principal">Principal</option>
+              <option value="Secundário">Secundário</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cad-observacoes">Observações</label>
+          <textarea id="cad-observacoes" name="observacoes" rows="3" placeholder="Detalhes adicionais..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Salvar Cadastro</button>
+          <button type="reset" class="btn btn-secondary">Limpar</button>
+        </div>
+      </form>
+
+      <div id="feedback-cadastro" class="feedback" role="status"></div>
+    </section>
+
+    <!-- 3. TELA DE MOVIMENTAÇÕES -->
+    <section id="movimentacoes" class="screen" aria-labelledby="title-movimentacoes">
+      <div class="screen-header">
+        <h2 id="title-movimentacoes">Movimentações</h2>
+        <p>Registre operações de entrada, saída ou ajuste.</p>
+      </div>
+
+      <form id="form-movimentacao">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="mov-tipo">Tipo de Movimentação *</label>
+            <select id="mov-tipo" name="tipo" required>
+              <option value="ENTRADA">Entrada</option>
+              <option value="SAIDA">Saída</option>
+              <option value="TRANSFERENCIA">Transferência</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="mov-referencia">Referência / Registro *</label>
+            <input type="text" id="mov-referencia" name="referencia" placeholder="Ex.: COD-001" required />
+          </div>
+
+          <div class="form-group">
+            <label for="mov-valor">Valor *</label>
+            <input type="number" id="mov-valor" name="valor" step="0.01" min="0.01" placeholder="0,00" required />
+          </div>
+
+          <div class="form-group">
+            <label for="mov-data">Data *</label>
+            <input type="date" id="mov-data" name="data" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mov-descricao">Descrição</label>
+          <input type="text" id="mov-descricao" name="descricao" placeholder="Motivo ou observação da movimentação" />
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Registrar Movimentação</button>
+          <button type="reset" class="btn btn-secondary">Limpar</button>
+        </div>
+      </form>
+
+      <div id="feedback-movimentacao" class="feedback" role="status"></div>
+    </section>
+
+    <!-- 4. TELA DE LISTAGEM -->
+    <section id="listagem" class="screen" aria-labelledby="title-listagem">
+      <div class="screen-header">
+        <h2 id="title-listagem">Listagem</h2>
+        <p>Visualize e filtre os registros disponíveis.</p>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="filtro-busca" placeholder="Buscar por nome ou código..." aria-label="Buscar registros" />
+        <select id="filtro-categoria" aria-label="Filtrar por categoria">
+          <option value="">Todas as categorias</option>
+          <option value="Padrão">Padrão</option>
+          <option value="Principal">Principal</option>
+          <option value="Secundário">Secundário</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Categoria</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-registros">
+            <tr>
+              <td>COD-001</td>
+              <td>Registro Exemplo A</td>
+              <td><span class="badge">Principal</span></td>
+              <td>Item inicial de demonstração</td>
+            </tr>
+            <tr>
+              <td>COD-002</td>
+              <td>Registro Exemplo B</td>
+              <td><span class="badge">Padrão</span></td>
+              <td>Cadastro de teste</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. TELA SOBRE -->
+    <section id="sobre" class="screen" aria-labelledby="title-sobre">
+      <div class="screen-header">
+        <h2 id="title-sobre">Sobre o Sistema</h2>
+        <p>Informações gerais da aplicação e estrutura das telas.</p>
+      </div>
+
+      <p>
+        Esta interface reúne as telas base do sistema em um único arquivo HTML para facilitar a prototipação e a integração com seu backend ou API REST.
+      </p>
+
+      <ul class="about-list">
+        <li><strong>Menu:</strong> atalhos rápidos para os módulos principais.</li>
+        <li><strong>Cadastro:</strong> formulário para criação de novos registros.</li>
+        <li><strong>Movimentações:</strong> lançamento de operações com tipo, valor e data.</li>
+        <li><strong>Listagem:</strong> consulta tabular com filtro por texto e categoria.</li>
+        <li><strong>Sobre:</strong> documentação resumida do projeto.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const navButtons = document.querySelectorAll("header nav button[data-target]");
+    const menuButtons = document.querySelectorAll(".menu-card button[data-target]");
+    const screens = document.querySelectorAll(".screen");
+
+    function showScreen(targetId) {
+      screens.forEach((screen) => {
+        screen.classList.toggle("active", screen.id === targetId);
+      });
+
+      navButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.target === targetId);
+      });
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => showScreen(btn.dataset.target));
+    });
+
+    menuButtons.forEach((btn) => {
+      btn.addEventListener("click", () => showScreen(btn.dataset.target));
+    });
+
+    // Exemplo de adição de linha na listagem ao enviar o cadastro
+    const formCadastro = document.getElementById("form-cadastro");
+    const feedbackCadastro = document.getElementById("feedback-cadastro");
+    const tabelaRegistros = document.getElementById("tabela-registros");
+
+    formCadastro.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const nome = document.getElementById("cad-nome").value.trim();
+      const codigo = document.getElementById("cad-codigo").value.trim();
+      const categoria = document.getElementById("cad-categoria").value;
+      const obs = document.getElementById("cad-observacoes").value.trim() || "-";
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${codigo}</td>
+        <td>${nome}</td>
+        <td><span class="badge">${categoria}</span></td>
+        <td>${obs}</td>
+      `;
+      tabelaRegistros.appendChild(tr);
+
+      feedbackCadastro.textContent = `Registro "${nome}" (${codigo}) adicionado à listagem.`;
+      feedbackCadastro.classList.add("show");
+      formCadastro.reset();
+    });
+
+    // Feedback simples para movimentações
+    const formMovimentacao = document.getElementById("form-movimentacao");
+    const feedbackMovimentacao = document.getElementById("feedback-movimentacao");
+
+    formMovimentacao.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const tipo = document.getElementById("mov-tipo").value;
+      const ref = document.getElementById("mov-referencia").value.trim();
+      const valor = document.getElementById("mov-valor").value;
+
+      feedbackMovimentacao.textContent = `Movimentação (${tipo}) de ${valor} registrada para "${ref}".`;
+      feedbackMovimentacao.classList.add("show");
+      formMovimentacao.reset();
+    });
+
+    // Filtro na tabela de listagem
+    const filtroBusca = document.getElementById("filtro-busca");
+    const filtroCategoria = document.getElementById("filtro-categoria");
+
+    function filtrarTabela() {
+      const termo = filtroBusca.value.toLowerCase().trim();
+      const cat = filtroCategoria.value;
+      const linhas = tabelaRegistros.querySelectorAll("tr");
+
+      linhas.forEach((linha) => {
+        const textoLinha = linha.textContent.toLowerCase();
+        const badgeTexto = linha.querySelector(".badge")?.textContent || "";
+        const combinaBusca = !termo || textoLinha.includes(termo);
+        const combinaCat = !cat || badgeTexto === cat;
+        linha.style.display = combinaBusca && combinaCat ? "" : "none";
+      });
+    }
+
+    filtroBusca.addEventListener("input", filtrarTabela);
+    filtroCategoria.addEventListener("change", filtrarTabela);
+  </script>
+</body>
+</html>
+
+
+
+<!-- 2. TELA DE CADASTRO -->
+    <section id="cadastro" class="screen" aria-labelledby="title-cadastro">
+      <div class="screen-header">
+        <h2 id="title-cadastro">Cadastro de Conta</h2>
+        <p>Selecione o tipo de conta e preencha os dados do titular para abertura.</p>
+      </div>
+
+      <form id="form-cadastro">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="cad-tipo">Tipo de Conta *</label>
+            <select id="cad-tipo" name="tipo" required>
+              <option value="COMUM">Conta Comum</option>
+              <option value="ESPECIAL">Conta Especial</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cad-numero">Número da Conta *</label>
+            <input type="text" id="cad-numero" name="numero" placeholder="Ex.: 0001-9" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cad-titular">Nome do Titular *</label>
+            <input type="text" id="cad-titular" name="titular" placeholder="Ex.: Maria Silva" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cad-saldo">Saldo Inicial (R$) *</label>
+            <input type="number" id="cad-saldo" name="saldo" step="0.01" min="0" value="0.00" required />
+          </div>
+
+          <div class="form-group" id="grupo-limite" style="display: none;">
+            <label for="cad-limite">Limite Especial (R$) *</label>
+            <input type="number" id="cad-limite" name="limite" step="0.01" min="0.01" placeholder="Ex.: 500.00" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cad-observacoes">Observações</label>
+          <textarea id="cad-observacoes" name="observacoes" rows="2" placeholder="Informações complementares da conta..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Abrir Conta</button>
+          <button type="reset" class="btn btn-secondary">Limpar</button>
+          <button type="button" class="btn btn-secondary" onclick="trocarTela('menu')">Voltar ao Menu</button>
+        </div>
+      </form>
+
+      <div id="feedback-cadastro" class="feedback" role="status"></div>
+    </section>
+
+
+<!-- 4. TELA DE LISTAGEM -->
+    <section id="listagem" class="screen" aria-labelledby="title-listagem">
+      <div class="screen-header">
+        <h2 id="title-listagem">Contas Cadastradas</h2>
+        <p>Consulte e filtre as contas comuns e especiais ativas no terminal.</p>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="filtro-busca" placeholder="Buscar por titular ou número..." aria-label="Buscar contas" />
+        <select id="filtro-categoria" aria-label="Filtrar por tipo de conta">
+          <option value="">Todos os tipos</option>
+          <option value="COMUM">Conta Comum</option>
+          <option value="ESPECIAL">Conta Especial</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Conta</th>
+              <th>Titular</th>
+              <th>Tipo</th>
+              <th>Saldo</th>
+              <th>Limite</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-registros"></tbody>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" onclick="trocarTela('cadastro')">Nova Conta</button>
+        <button type="button" class="btn btn-secondary" onclick="trocarTela('menu')">Voltar ao Menu</button>
+      </div>
+    </section>
+
+
+    <div class="form-group">
+  <label for="cad-tipo">Tipo de Conta *</label>
+  <select id="cad-tipo" name="tipo" required>
+    <option value="COMUM">Conta Comum</option>
+    <option value="ESPECIAL">Conta Especial</option>
+  </select>
+</div>
+
+<div class="form-group" id="grupo-limite" style="display: none;">
+  <label for="cad-limite">Limite de Crédito (R$) *</label>
+  <input
+    type="number"
+    id="cad-limite"
+    name="limite"
+    step="0.01"
+    min="0.01"
+    placeholder="Ex.: 1000.00"
+  />
+</div>
+
+
+<input type="number" step="0.01" min="0.01" required placeholder="Digite um valor maior que zero">
+
+<form id="form-deposito">
+  <select id="select-conta"></select>
+  <input id="input-valor" type="text" placeholder="0,00" />
+  <button type="submit">Depositar</button>
+</form>
+
+<section id="painel-conta">
+  <p>Conta: <strong id="painel-numero">-</strong></p>
+  <p>Titular: <strong id="painel-titular">-</strong></p>
+  <p>Saldo atual: <strong id="painel-saldo">R$ 0,00</strong></p>
+</section>
+
+<table>
+  <thead>
+    <tr>
+      <th>Conta</th>
+      <th>Titular</th>
+      <th>Saldo</th>
+    </tr>
+  </thead>
+  <tbody id="tabela-contas-body"></tbody>
+</table>
+
+<div id="area-mensagens" class="mensagem oculta" role="status" aria-live="polite"></div>
+
+<section id="tela-transferencia" class="tela oculta">
+  <h2>Transferência</h2>
+  <p>Selecione a conta de origem, a conta de destino e informe o valor para realizar a transferência.</p>
+
+  <form id="form-transferencia">
+    <div class="campo-form">
+      <label for="selectOrigem">Conta de origem</label>
+      <select id="selectOrigem" name="selectOrigem" required>
+        <option value="">Selecione a conta de origem</option>
+      </select>
+    </div>
+
+    <div class="campo-form">
+      <label for="selectDestino">Conta de destino</label>
+      <select id="selectDestino" name="selectDestino" required>
+        <option value="">Selecione a conta de destino</option>
+      </select>
+    </div>
+
+    <div class="campo-form">
+      <label for="valorTransferencia">Valor da transferência</label>
+      <input
+        id="valorTransferencia"
+        name="valorTransferencia"
+        type="number"
+        step="0.01"
+        min="0"
+        placeholder="0,00"
+        required
+      />
+    </div>
+
+    <button type="submit">Transferir</button>
+  </form>
+
+  <div id="msg-transferencia" class="mensagem" role="status" aria-live="polite"></div>
+</section>
+
+<nav class="menu">
+  <!-- demais botões de navegação existentes -->
+  <button type="button" data-tela="tela-transferencia">Transferência</button>
+</nav>
+
+<div class="cards-menu">
+  <!-- demais cards existentes no menu inicial -->
+  <div class="card-menu" data-tela="tela-transferencia">
+    <span class="icone">⇄</span>
+    <h3>Transferência</h3>
+    <p>Envie valores entre contas cadastradas de forma rápida e atualize saldos e histórico na hora.</p>
+  </div>
+</div>
