@@ -1,0 +1,592 @@
+/* ==========================================================================
+   ATM / Caixa Eletrônico Theme — style.css
+   ========================================================================== */
+
+:root {
+  /* Superfícies do terminal */
+  --atm-chassis: #0b0f17;
+  --atm-bezel: #121826;
+  --atm-screen: #141c2b;
+  --atm-surface: #1a2436;
+  --atm-surface-hover: #212e45;
+  --atm-input-bg: #0e1420;
+
+  /* Bordas e divisores */
+  --atm-border: #28364f;
+  --atm-border-strong: #3b4f73;
+
+  /* Tipografia */
+  --atm-text: #e6edf7;
+  --atm-text-muted: #8fa1bd;
+  --atm-text-dim: #647694;
+
+  /* Cores de operação ATM */
+  --atm-primary: #00c875;        /* Verde terminal / operação ativa */
+  --atm-primary-hover: #00a862;
+  --atm-primary-glow: rgba(0, 200, 117, 0.22);
+  --atm-accent: #f59e0b;         /* Âmbar / alerta / saldo destaque */
+  --atm-accent-soft: rgba(245, 158, 11, 0.14);
+  --atm-danger: #ef4444;         /* Saque / erro / estorno */
+  --atm-danger-soft: rgba(239, 68, 68, 0.14);
+  --atm-info: #38bdf8;           /* Consulta / transferência */
+  --atm-info-soft: rgba(56, 189, 248, 0.14);
+
+  /* Geometria e elevação */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at top center, rgba(0, 200, 117, 0.06), transparent 45%),
+    linear-gradient(180deg, var(--atm-chassis) 0%, #070a10 100%);
+  color: var(--atm-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Valores numéricos, códigos e saldos com alinhamento tabular */
+.mono,
+code,
+input[type="number"],
+td:first-child {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Cabeçalho e Navegação Superior (Faixa do Terminal)
+   ========================================================================== */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, #162032 0%, var(--atm-bezel) 100%);
+  border-bottom: 2px solid var(--atm-border-strong);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  padding: 0.95rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--atm-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Indicador luminoso de terminal online */
+header h1::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--atm-primary);
+  box-shadow: 0 0 10px var(--atm-primary);
+  flex-shrink: 0;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+nav button {
+  background-color: var(--atm-surface);
+  color: var(--atm-text-muted);
+  border: 1px solid var(--atm-border);
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.08s ease;
+}
+
+nav button:hover {
+  background-color: var(--atm-surface-hover);
+  color: var(--atm-text);
+  border-color: var(--atm-border-strong);
+}
+
+nav button:active {
+  transform: translateY(1px);
+}
+
+nav button.active {
+  background-color: var(--atm-primary);
+  color: #06130d;
+  border-color: var(--atm-primary);
+  box-shadow: 0 0 14px var(--atm-primary-glow);
+}
+
+/* ==========================================================================
+   Container Principal e Telas (.screen)
+   ========================================================================== */
+
+main {
+  max-width: 980px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.25rem;
+}
+
+.screen {
+  display: none;
+  background: linear-gradient(180deg, var(--atm-screen) 0%, var(--atm-bezel) 100%);
+  border: 1px solid var(--atm-border-strong);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card), var(--shadow-inset);
+}
+
+.screen.active {
+  display: block;
+  animation: atmScreenFadeIn 0.2s ease-out;
+}
+
+@keyframes atmScreenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--atm-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.screen-header h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--atm-text);
+}
+
+.screen-header p {
+  font-size: 0.92rem;
+  color: var(--atm-text-muted);
+}
+
+/* ==========================================================================
+   Menu Principal — Grade e Cards de Operação
+   ========================================================================== */
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 1.1rem;
+}
+
+.menu-card {
+  position: relative;
+  background-color: var(--atm-surface);
+  border: 1px solid var(--atm-border);
+  border-left: 4px solid var(--atm-primary);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: var(--shadow-inset);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.menu-card:hover {
+  background-color: var(--atm-surface-hover);
+  border-color: var(--atm-border-strong);
+  border-left-color: var(--atm-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.menu-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--atm-text);
+  margin-bottom: 0.35rem;
+}
+
+.menu-card p {
+  font-size: 0.88rem;
+  color: var(--atm-text-muted);
+}
+
+/* ==========================================================================
+   Botões Táteis (Estilo Teclado ATM)
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: var(--atm-primary);
+  color: #06130d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.65rem 1.15rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.08s ease;
+}
+
+.btn:hover {
+  background-color: var(--atm-primary-hover);
+  box-shadow: 0 0 14px var(--atm-primary-glow);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background-color: var(--atm-surface);
+  color: var(--atm-text);
+  border: 1px solid var(--atm-border-strong);
+}
+
+.btn-secondary:hover {
+  background-color: var(--atm-surface-hover);
+  box-shadow: none;
+}
+
+.btn-danger {
+  background-color: var(--atm-danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.25);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+/* ==========================================================================
+   Formulários (Cadastro e Movimentações)
+   ========================================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--atm-text-muted);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  background-color: var(--atm-input-bg);
+  color: var(--atm-text);
+  border: 1px solid var(--atm-border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--atm-text-dim);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--atm-primary);
+  box-shadow: 0 0 0 3px var(--atm-primary-glow);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ==========================================================================
+   Mensagens de Feedback / Comprovante / Alerta
+   ========================================================================== */
+
+.feedback {
+  display: none;
+  margin-top: 1.15rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 200, 117, 0.45);
+  border-left: 4px solid var(--atm-primary);
+  background-color: var(--atm-primary-glow);
+  color: #b7f7d8;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.feedback.show {
+  display: block;
+  animation: atmScreenFadeIn 0.18s ease-out;
+}
+
+.feedback.error {
+  border-color: rgba(239, 68, 68, 0.5);
+  border-left-color: var(--atm-danger);
+  background-color: var(--atm-danger-soft);
+  color: #fecaca;
+}
+
+.feedback.warn {
+  border-color: rgba(245, 158, 11, 0.5);
+  border-left-color: var(--atm-accent);
+  background-color: var(--atm-accent-soft);
+  color: #fde68a;
+}
+
+/* ==========================================================================
+   Listagem — Barra de Filtros, Tabela e Badges
+   ========================================================================== */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+}
+
+.toolbar input,
+.toolbar select {
+  max-width: 280px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--atm-border);
+  border-radius: var(--radius-md);
+  background-color: var(--atm-input-bg);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.8rem 0.9rem;
+  border-bottom: 1px solid var(--atm-border);
+}
+
+thead th {
+  background-color: var(--atm-surface);
+  color: var(--atm-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background-color: var(--atm-info-soft);
+  color: var(--atm-info);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.badge.success {
+  background-color: var(--atm-primary-glow);
+  color: var(--atm-primary);
+  border-color: rgba(0, 200, 117, 0.35);
+}
+
+.badge.warn {
+  background-color: var(--atm-accent-soft);
+  color: var(--atm-accent);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.badge.danger {
+  background-color: var(--atm-danger-soft);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* ==========================================================================
+   Tela Sobre
+   ========================================================================== */
+
+#sobre > p {
+  color: var(--atm-text);
+  font-size: 0.95rem;
+}
+
+.about-list {
+  list-style: none;
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.about-list li {
+  background-color: var(--atm-surface);
+  border: 1px solid var(--atm-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.95rem;
+  font-size: 0.9rem;
+  color: var(--atm-text-muted);
+}
+
+.about-list li strong {
+  color: var(--atm-primary);
+}
+
+/* ==========================================================================
+   Responsividade
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  header {
+    padding: 0.85rem 1rem;
+  }
+
+  main {
+    margin: 1.25rem auto 2rem;
+    padding: 0 0.85rem;
+  }
+
+  .screen {
+    padding: 1.15rem;
+  }
+
+  .toolbar input,
+  .toolbar select {
+    max-width: 100%;
+  }
+
+  .actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+.mensagem {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.mensagem.oculta {
+  display: none;
+}
+
+.mensagem.mensagem-sucesso {
+  display: block;
+  background-color: #e6f4ea;
+  color: #137333;
+  border: 1px solid #81c995;
+}
+
+.mensagem.mensagem-erro {
+  display: block;
+  background-color: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #f28b82;
+}
+
+.saldo-negativo {
+  color: #c5221f;
+  font-weight: 700;
+}
